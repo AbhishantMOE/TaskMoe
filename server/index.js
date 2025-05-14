@@ -2,7 +2,6 @@ import express from 'express';
 import cors from 'cors';
 import axios from 'axios';
 
-
 const PORT = process.env.PORT || 5000;
 
 
@@ -19,43 +18,54 @@ app.use(cors());
 //endpoints
 
 // Products endpoint
-app.get('/api/products', async (req, res) => {
+const makeApiRequest = async (method, url, data = null) => {
   try {
-    console.log('Attempting to fetch products from FakeStoreAPI...');
-    const response = await axios.get('https://fakestoreapi.com/products');
-    console.log('Successfully fetched products');
-    res.json(response.data);
+    const config = {
+      method,
+      url: `https://fakestoreapi.com${url}`,
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    };
+    if (data) config.data = data;
+    
+    const response = await axios(config);
+    return { success: true, data: response.data };
   } catch (error) {
-    console.error('Full error object:', error);
-    console.error('Error details:', {
-      message: error.message,
-      code: error.code,
-      response: error.response ? {
-        status: error.response.status,
-        data: error.response.data
-      } : 'No response',
-      stack: error.stack
-    });
-    res.status(500).json({ 
-      message: 'Error fetching products',
-      internalError: error.message 
-    });
+    console.error('API Error:', error.message);
+    return { 
+      success: false, 
+      error: error.response?.data || error.message 
+    };
   }
+};
+
+// CRUD Endpoints
+app.get('/api/products', async (req, res) => {
+  const result = await makeApiRequest('get', '/products');
+  result.success ? res.json(result.data) : res.status(500).json(result.error);
 });
-  
-  // Single product endpoint
-  app.get('/api/products/:id', async (req, res) => {
-    try {
-      const response = await axios.get(`https://fakestoreapi.com/products/${req.params.id}`);
-      res.json(response.data);
-    } catch (error) {
-      res.status(500).json({ message: 'Error fetching product' });
-    }
-  });
 
+app.get('/api/products/:id', async (req, res) => {
+  const result = await makeApiRequest('get', `/products/${req.params.id}`);
+  result.success ? res.json(result.data) : res.status(404).json(result.error);
+});
 
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-  });
+app.post('/api/products', async (req, res) => {
+  const result = await makeApiRequest('post', '/products', req.body);
+  result.success ? res.status(201).json(result.data) : res.status(400).json(result.error);
+});
+
+app.put('/api/products/:id', async (req, res) => {
+  const result = await makeApiRequest('put', `/products/${req.params.id}`, req.body);
+  result.success ? res.json(result.data) : res.status(400).json(result.error);
+});
+
+app.delete('/api/products/:id', async (req, res) => {
+  const result = await makeApiRequest('delete', `/products/${req.params.id}`);
+  result.success ? res.json(result.data) : res.status(400).json(result.error);
+});
+
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
 export default app;
