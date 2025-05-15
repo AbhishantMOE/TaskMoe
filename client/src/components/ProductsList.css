@@ -65,3 +65,19 @@
     border-radius: 3px;
     cursor: pointer;
   }
+
+  /* Add to ProductsList.css */
+.product-card {
+  position: relative;
+  padding-bottom: 60px; /* Space for buttons if they exist */
+}
+
+.actions {
+  position: absolute;
+  bottom: 15px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}

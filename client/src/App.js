@@ -1,18 +1,22 @@
 // client/src/App.js
 import { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
 import ProductsList from './components/ProductsList';
 import ProductDetails from './components/ProductDetails';
 import ProductForm from './components/ProductForm';
+import LoginPage from './pages/LoginPage';
+import ProtectedRoute from './components/ProtectedRoute';
+import Navbar from './components/Navbar';
 import { getProducts, deleteProduct } from './api/products';
 import './App.css';
 
-function App() {
+function AppContent() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
-  // Fetch products only once when app loads
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -51,8 +55,10 @@ function App() {
   if (error) return <div>Error: {error}</div>;
 
   return (
-    <Router>
+    <>
+      <Navbar />
       <Routes>
+        <Route path="/login" element={<LoginPage />} />
         <Route 
           path="/" 
           element={
@@ -74,20 +80,30 @@ function App() {
         <Route 
           path="/products/new" 
           element={
-            <ProductForm 
-              onCreate={handleCreate} 
-            />
+            <ProtectedRoute>
+              <ProductForm onCreate={handleCreate} />
+            </ProtectedRoute>
           } 
         />
         <Route 
           path="/products/:id/edit" 
           element={
-            <ProductForm 
-              onUpdate={handleUpdate} 
-            />
+            <ProtectedRoute>
+              <ProductForm onUpdate={handleUpdate} />
+            </ProtectedRoute>
           } 
         />
       </Routes>
+    </>
+  );
+}
+
+function App() {
+  return (
+    <Router>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
     </Router>
   );
 }

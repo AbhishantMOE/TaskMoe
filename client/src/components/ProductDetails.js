@@ -29,7 +29,7 @@ const ProductDetails = ({ products, onDelete }) => {
           <p>${product.price}</p>
           <p className="category">{product.category}</p>
           <p className="description">{product.description}</p>
-          <button 
+          {/* <button 
             onClick={() => navigate(`/products/${id}/edit`)}
             className="edit-btn"
           >
@@ -40,7 +40,7 @@ const ProductDetails = ({ products, onDelete }) => {
             className="delete-btn"
           >
             Delete
-          </button>
+          </button> */}
         </div>
       </div>
     </div>

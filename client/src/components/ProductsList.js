@@ -1,9 +1,11 @@
 // client/src/components/ProductsList.js
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import './ProductsList.css';
 
 const ProductsList = ({ products, onDelete }) => {
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const handleDelete = (id, e) => {
     e.stopPropagation();
@@ -14,7 +16,9 @@ const ProductsList = ({ products, onDelete }) => {
     <div className="products-container">
       <div className="header">
         <h1>Products</h1>
-        <button onClick={() => navigate('/products/new')}>Add Product</button>
+        {user && (
+          <button onClick={() => navigate('/products/new')}>Add Product</button>
+        )}
       </div>
       
       <div className="products-grid">
@@ -29,23 +33,25 @@ const ProductsList = ({ products, onDelete }) => {
             <p>${product.price}</p>
             <h4>{product.description.substring(0,50)}</h4>
 
-            <div className="actions">
-              <button 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  navigate(`/products/${product.id}/edit`);
-                }}
-                className="edit-btn"
-              >
-                Edit
-              </button>
-              <button 
-                onClick={(e) => handleDelete(product.id, e)}
-                className="delete-btn"
-              >
-                Delete
-              </button>
-            </div>
+            {user && (
+              <div className="actions">
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(`/products/${product.id}/edit`);
+                  }}
+                  className="edit-btn"
+                >
+                  Edit
+                </button>
+                <button 
+                  onClick={(e) => handleDelete(product.id, e)}
+                  className="delete-btn"
+                >
+                  Delete
+                </button>
+              </div>
+            )}
           </div>
         ))}
       </div>
